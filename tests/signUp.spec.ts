@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-const {faker} = require('@faker-js/faker')
+//const {faker} = require('@faker-js/faker')
+import { faker } from '@faker-js/faker';
+
 
 
 test.describe('find bugs on uTest',()=>{
@@ -16,19 +18,17 @@ test.describe('find bugs on uTest',()=>{
         firstName: string,
         lastname: string,
         email: string,
-        confirmemail : string,
-        password: string,
-        confirmpassword : string
+        password: any,
+       
       };
 
 
       const user: userDetails = {
-        firstName: 'Bola',
-        lastname: 'Cardoso',
-        email: 'cardosk@yahoo.com',
-        confirmemail: 'cardosk@yahoo.com',
-        password: '12.Bricks.12',
-        confirmpassword: '12.Bricks.12'
+        firstName: faker.person.firstName(),
+        lastname: faker.person.lastName(),
+        email: faker.internet.email(),
+        password: faker.internet.password()
+        
       }
       
 
@@ -83,13 +83,13 @@ test.describe('find bugs on uTest',()=>{
     await emailSection.pressSequentially(user.email)
   
     const emailConfirm_Section = await page.locator('[id="ec_account_register_retype_email"]')
-    await emailConfirm_Section.pressSequentially(user.confirmemail)
+    await emailConfirm_Section.pressSequentially(user.email)
 
     const password_Section = await page.locator('[id="ec_account_register_password"]')
     await password_Section.pressSequentially(user.password)
 
     const retypePassword = await page.locator('[id="ec_account_register_password_retype"]')
-    await retypePassword.pressSequentially(user.confirmpassword)
+    await retypePassword.pressSequentially(user.password)
 
 
     const checkBox = await page.locator('[id="ec_account_register_is_subscriber"]')
