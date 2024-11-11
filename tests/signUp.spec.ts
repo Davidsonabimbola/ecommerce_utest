@@ -4,21 +4,56 @@ import { faker } from '@faker-js/faker';
 
 
 
+
 test.describe('find bugs on uTest',()=>{
 
 
   const enum buttonType {
     logoLink = 'AcademyBugs.com',
     productRating = 'Title Z-A',
-    signUp = 'Sign Up'
+    signUp = 'Sign Up',
+    firstOrder = 'Dark Grey Jeans',
+    add_To_Cart = 'ADD TO CART',
+    checkOut = 'CHECKOUT NOW',
+    register = 'REGISTER',
+    checkout = 'Checkout'
     
       }
+
+
+
+      const nigeriaCities = [
+        'Lagos',
+        'Abia',
+        'Ibadan',
+        'Port-Harcourt',
+        'Benin',
+        'Minna',
+        'Suleja',
+        'Abeokuta',
+        'Ijebu-Ode',
+        'Ogbomosho',
+        'Sokoto',
+        'Kaduna'
+      ]
+
+      const randomCityinNigeria = faker.helpers.arrayElement(nigeriaCities)
+      const countryName = 'Poland'
+      
 
       type userDetails = {
         firstName: string,
         lastname: string,
         email: string,
         password: any,
+        companyName: string,
+        address: any,
+        city: string,
+        state: string,
+        zipCode: string
+        phoneNumber: any,
+        city2: string,
+       
        
       };
 
@@ -27,9 +62,21 @@ test.describe('find bugs on uTest',()=>{
         firstName: faker.person.firstName(),
         lastname: faker.person.lastName(),
         email: faker.internet.email(),
-        password: faker.internet.password()
+        password: faker.internet.password(),
+        companyName: faker.company.name(),
+        address: faker.location.streetAddress(),
+        city: randomCityinNigeria,
+        city2: faker.location.city(),
+        state: faker.location.state(),
+        zipCode: faker.location.zipCode(),
+        phoneNumber: faker.phone.number(),
+        
         
       }
+
+
+
+     
       
 
 
@@ -95,8 +142,101 @@ test.describe('find bugs on uTest',()=>{
     const checkBox = await page.locator('[id="ec_account_register_is_subscriber"]')
     await checkBox.check()
 
-    await page.getByRole('button', { name: 'REGISTER' }).click()
+    await page.getByRole('button', { name: buttonType.register }).click()
   });
+
+
+
+
+
+  test('single order with selecting location', async ({ page }) => {
+    test.setTimeout(400000)
+    
+    await page.goto('https://academybugs.com/find-bugs/');
+    await expect(await page.getByRole('link',{name: buttonType.logoLink})).toBeVisible()
+    await expect(page.locator('[class="sq-site-title"]')).toBeVisible()
+    const productTitle = page.locator('[class="ec_product_title_type1"]')
+    const productLink = productTitle.getByRole('link', {name: buttonType.firstOrder})
+
+    const productCard = page.locator('[class="ec_product_li"]')
+    await productCard.filter({has: productLink}).screenshot({animations: 'allow', path: 'link.png'})
+    const targetProduct = await productCard.filter({has: productLink})
+    const productPrice = targetProduct.locator('[class="ec_price_type1"]')
+    console.log(await productPrice.textContent())
+await targetProduct.getByRole('link', {name: buttonType.add_To_Cart}).click()
+await expect(targetProduct.locator('[class="ec_product_successfully_added"]')).toBeVisible()
+await targetProduct.locator('[class="ec_product_successfully_added"]').screenshot({animations:'allow', path: 'sucessMessage.png'})
+await targetProduct.getByRole('link', {name: buttonType.checkOut}).click()
+await expect (page.locator('[id="main"]')).toBeVisible()
+const shippingCost = page.locator('[id="ec_cart_shipping"]')
+console.log(await shippingCost.textContent())
+
+await page.getByRole('link',{name: 'Checkout'}).click()
+
+await expect(page.getByRole('link', {name: 'CHECKOUT DETAILS'})).toBeVisible()
+
+
+//checkout details
+
+
+const countryField = page.locator('[id="ec_cart_billing_country"]')
+ const countryPick = await countryField.selectOption(countryName)
+
+if(countryPick.includes('Nigeria')){
+  const firstName_field = page.locator('[id="ec_cart_billing_first_name"]')
+await firstName_field.fill(user.firstName)
+
+const lastName_field = page.locator('[id="ec_cart_billing_last_name"]')
+await lastName_field.fill(user.lastname)
+
+const companyName_field = page.locator('[id="ec_cart_billing_company_name"]')
+await companyName_field.fill(user.companyName)
+
+const address_field = page.locator('[id="ec_cart_billing_address"]')
+await address_field.fill(user.address)
+
+
+const city_field = page.locator('[id="ec_cart_billing_city"]')
+await city_field.fill(user.city)
+
+
+const state_field = page.locator('[id="ec_cart_billing_state"]')
+await state_field.fill(user.state)
+
+}
+
+else{
+
+  const countryField = page.locator('[id="ec_cart_billing_country"]')
+await countryField.selectOption(countryName)
+
+const firstName_field = page.locator('[id="ec_cart_billing_first_name"]')
+await firstName_field.fill(user.firstName)
+
+const lastName_field = page.locator('[id="ec_cart_billing_last_name"]')
+await lastName_field.fill(user.lastname)
+
+const companyName_field = page.locator('[id="ec_cart_billing_company_name"]')
+await companyName_field.fill(user.companyName)
+
+const address_field = page.locator('[id="ec_cart_billing_address"]')
+await address_field.fill(user.address)
+
+
+const city_field = page.locator('[id="ec_cart_billing_city"]')
+await city_field.fill(user.city2)
+
+
+const state_field = page.locator('[id="ec_cart_billing_state"]')
+await state_field.fill(user.state)
+
+}
+
+
+  })
+
+
+
 
 
 })
