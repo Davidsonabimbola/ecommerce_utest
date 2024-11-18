@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 //const {faker} = require('@faker-js/faker')
 import { faker } from '@faker-js/faker';
+import UserSelection from '../pages/SelectProduct';
+//const User_selection = require('../pages/SelectProduct')
 
 
 
@@ -37,8 +39,29 @@ test.describe('find bugs on uTest',()=>{
         'Kaduna'
       ]
 
+
+
+      const ukCities = [
+
+        'London',
+        'Birmingham',
+        'Leceister',
+        'Southampton',
+        'Bradford',
+        'Bristol',
+        'Plymouth',
+        'York',
+        'Oxford',
+        'Gloucester',
+        'Norwich',
+        'Wolverhampton',
+        'Chester',
+        'Leeds'
+      ]
+
       const randomCityinNigeria = faker.helpers.arrayElement(nigeriaCities)
-      const countryName = 'Poland'
+      const randomCityinUK = faker.helpers.arrayElement(ukCities)
+      const countryName = 'Germany'
       
 
       type userDetails = {
@@ -53,7 +76,7 @@ test.describe('find bugs on uTest',()=>{
         zipCode: string
         phoneNumber: any,
         city2: string,
-       
+        city3: string
        
       };
 
@@ -65,8 +88,9 @@ test.describe('find bugs on uTest',()=>{
         password: faker.internet.password(),
         companyName: faker.company.name(),
         address: faker.location.streetAddress(),
-        city: randomCityinNigeria,
+        city:randomCityinNigeria,
         city2: faker.location.city(),
+        city3: randomCityinUK,
         state: faker.location.state(),
         zipCode: faker.location.zipCode(),
         phoneNumber: faker.phone.number(),
@@ -82,7 +106,8 @@ test.describe('find bugs on uTest',()=>{
 
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://academybugs.com/find-bugs/');
+    await page.goto('https://academybugs.com/find-bugs/')
+    // page.locator('#TourTipDisabledArea').click()
      await expect(await page.getByRole('link',{name: buttonType.logoLink})).toBeVisible()
      await expect(page.locator('[class="sq-site-title"]')).toBeVisible()
   });
@@ -99,50 +124,53 @@ test.describe('find bugs on uTest',()=>{
 
 
 
+
+  
+  
+
+
   test('select product', async ({ page }) => {
+    test.setTimeout(300000)
+    const userselection =  UserSelection(page)
+    const itemName = 'DNK Yellow Shoes'
+    await userselection.chooseCategory(buttonType.productRating)
+    await userselection.chooseProduct(itemName)
+    await userselection.signUp(
+      buttonType.signUp,
+      user.firstName,
+      user.lastname,
+      user.email,
+      user.password,
+      buttonType.register)
 
     
-    await page.goto('https://academybugs.com/find-bugs/');
-    await expect(await page.getByRole('link',{name: buttonType.logoLink})).toBeVisible()
-    await expect(page.locator('[class="sq-site-title"]')).toBeVisible()
-    await page.locator('[id="sortfield"]').selectOption(buttonType.productRating)
-    await expect(await page.locator('[class="ec_product_page_sort"]')).toBeVisible()
-
-    const productTitle = page.locator('[class="ec_product_title_type1"]')
-    const productLink = productTitle.getByRole('link', {name: 'DNK Yellow Shoes'})
-
-    const productCard = page.locator('[class="ec_product_li"]')
-    //await productCard.filter({has: productLink}).screenshot({animations: 'disabled', path: 'link.png'})
-    await productCard.filter({has: productLink}).click()
-    await expect(page.locator('[class="ec_details_content"]')).toBeVisible()
-    await page.locator('[class="ec_details_content"]').screenshot({path: 'details.png'})
 
     // register/sign up
-    await page.getByRole('link', {name: buttonType.signUp}).click()
+    // await page.getByRole('link', {name: buttonType.signUp}).click()
     
-    const firstName = await page.locator('[id="ec_account_register_first_name"]')
-    await firstName.pressSequentially(user.firstName)
+    // const firstName = await page.locator('[id="ec_account_register_first_name"]')
+    // await firstName.pressSequentially(user.firstName)
 
-    const lastName = await page.locator('[id="ec_account_register_last_name"]')
-    await lastName.pressSequentially(user.lastname)
+    // const lastName = await page.locator('[id="ec_account_register_last_name"]')
+    // await lastName.pressSequentially(user.lastname)
 
-    const emailSection = await page.locator('[id="ec_account_register_email"]')
-    await emailSection.pressSequentially(user.email)
+    // const emailSection = await page.locator('[id="ec_account_register_email"]')
+    // await emailSection.pressSequentially(user.email)
   
-    const emailConfirm_Section = await page.locator('[id="ec_account_register_retype_email"]')
-    await emailConfirm_Section.pressSequentially(user.email)
+    // const emailConfirm_Section = await page.locator('[id="ec_account_register_retype_email"]')
+    // await emailConfirm_Section.pressSequentially(user.email)
 
-    const password_Section = await page.locator('[id="ec_account_register_password"]')
-    await password_Section.pressSequentially(user.password)
+    // const password_Section = await page.locator('[id="ec_account_register_password"]')
+    // await password_Section.pressSequentially(user.password)
 
-    const retypePassword = await page.locator('[id="ec_account_register_password_retype"]')
-    await retypePassword.pressSequentially(user.password)
+    // const retypePassword = await page.locator('[id="ec_account_register_password_retype"]')
+    // await retypePassword.pressSequentially(user.password)
 
 
-    const checkBox = await page.locator('[id="ec_account_register_is_subscriber"]')
-    await checkBox.check()
+    // const checkBox = await page.locator('[id="ec_account_register_is_subscriber"]')
+    // await checkBox.check()
 
-    await page.getByRole('button', { name: buttonType.register }).click()
+    // await page.getByRole('button', { name: buttonType.register }).click()
   });
 
 
@@ -205,6 +233,7 @@ await state_field.fill(user.state)
 
 }
 
+
 else{
 
   const countryField = page.locator('[id="ec_cart_billing_country"]')
@@ -237,6 +266,40 @@ await state_field.fill(user.state)
 
 
 
+  test('multiple order', async ({ page }) => {
+    test.setTimeout(300000)
+
+    const desiredItems = ['DNK Yellow Shoes', 'Dark Grey Jeans', 'Flamingo Tshirt', 'Blue Hoodie' ]
+
+
+    for (const desireditem of desiredItems){
+
+    
+
+    const productCard = page.locator('[class="ec_product_li"]')
+
+
+
+    const productCard_Number = await productCard.count()
+
+
+    for(let i = 0; i< productCard_Number; i++){
+      const targetItem = productCard.nth(i)
+      const productTitle = targetItem.locator('[class="ec_product_title_type1"]')
+      const productName = await productTitle.textContent()
+
+      if(productName?.includes(desireditem))
+
+        {
+           await targetItem.getByRole('link', {name: 'ADD TO CART'}).click()
+      }
+
+    }
+
+
+  }
+
+  })
 
 
 })
