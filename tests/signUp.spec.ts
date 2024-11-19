@@ -18,8 +18,8 @@ test.describe('find bugs on uTest',()=>{
     add_To_Cart = 'ADD TO CART',
     checkOut = 'CHECKOUT NOW',
     register = 'REGISTER',
-    checkout = 'Checkout'
-    
+    checkout = 'Checkout',
+    view = 'View Cart'
       }
 
 
@@ -61,7 +61,7 @@ test.describe('find bugs on uTest',()=>{
 
       const randomCityinNigeria = faker.helpers.arrayElement(nigeriaCities)
       const randomCityinUK = faker.helpers.arrayElement(ukCities)
-      const countryName = 'Germany'
+      const countryName = 'Nigeria'
       
 
       type userDetails = {
@@ -124,11 +124,6 @@ test.describe('find bugs on uTest',()=>{
 
 
 
-
-  
-  
-
-
   test('select product', async ({ page }) => {
     test.setTimeout(300000)
     const userselection =  UserSelection(page)
@@ -177,12 +172,11 @@ test.describe('find bugs on uTest',()=>{
 
 
 
-  test('single order with selecting location', async ({ page }) => {
+  test('single order with selecting location', {tag:'@singleOrder'}, async ({ page }) => {
+    const userselection =  UserSelection(page)
     test.setTimeout(400000)
     
-    await page.goto('https://academybugs.com/find-bugs/');
-    await expect(await page.getByRole('link',{name: buttonType.logoLink})).toBeVisible()
-    await expect(page.locator('[class="sq-site-title"]')).toBeVisible()
+    
     const productTitle = page.locator('[class="ec_product_title_type1"]')
     const productLink = productTitle.getByRole('link', {name: buttonType.firstOrder})
 
@@ -206,101 +200,54 @@ await expect(page.getByRole('link', {name: 'CHECKOUT DETAILS'})).toBeVisible()
 
 //checkout details
 
-
-const countryField = page.locator('[id="ec_cart_billing_country"]')
- const countryPick = await countryField.selectOption(countryName)
-
-if(countryPick.includes('Nigeria')){
-  const firstName_field = page.locator('[id="ec_cart_billing_first_name"]')
-await firstName_field.fill(user.firstName)
-
-const lastName_field = page.locator('[id="ec_cart_billing_last_name"]')
-await lastName_field.fill(user.lastname)
-
-const companyName_field = page.locator('[id="ec_cart_billing_company_name"]')
-await companyName_field.fill(user.companyName)
-
-const address_field = page.locator('[id="ec_cart_billing_address"]')
-await address_field.fill(user.address)
-
-
-const city_field = page.locator('[id="ec_cart_billing_city"]')
-await city_field.fill(user.city)
-
-
-const state_field = page.locator('[id="ec_cart_billing_state"]')
-await state_field.fill(user.state)
-
-}
-
-
-else{
-
-  const countryField = page.locator('[id="ec_cart_billing_country"]')
-await countryField.selectOption(countryName)
-
-const firstName_field = page.locator('[id="ec_cart_billing_first_name"]')
-await firstName_field.fill(user.firstName)
-
-const lastName_field = page.locator('[id="ec_cart_billing_last_name"]')
-await lastName_field.fill(user.lastname)
-
-const companyName_field = page.locator('[id="ec_cart_billing_company_name"]')
-await companyName_field.fill(user.companyName)
-
-const address_field = page.locator('[id="ec_cart_billing_address"]')
-await address_field.fill(user.address)
-
-
-const city_field = page.locator('[id="ec_cart_billing_city"]')
-await city_field.fill(user.city2)
-
-
-const state_field = page.locator('[id="ec_cart_billing_state"]')
-await state_field.fill(user.state)
-
-}
-
-
-  })
-
-
-
-  test('multiple order', async ({ page }) => {
-    test.setTimeout(300000)
-
-    const desiredItems = ['DNK Yellow Shoes', 'Dark Grey Jeans', 'Flamingo Tshirt', 'Blue Hoodie' ]
-
-
-    for (const desireditem of desiredItems){
-
+await userselection.fillCountry(countryName);
+  if (countryName ==='Nigeria') {
+    // For Nigeria, use the primary address fields
     
-
-    const productCard = page.locator('[class="ec_product_li"]')
-
-
-
-    const productCard_Number = await productCard.count()
-
-
-    for(let i = 0; i< productCard_Number; i++){
-      const targetItem = productCard.nth(i)
-      const productTitle = targetItem.locator('[class="ec_product_title_type1"]')
-      const productName = await productTitle.textContent()
-
-      if(productName?.includes(desireditem))
-
-        {
-           await targetItem.getByRole('link', {name: 'ADD TO CART'}).click()
-      }
-
-    }
-
-
+    await userselection.fill_firstName(user.firstName);
+    await userselection.fill_lastName(user.lastname);
+    await userselection.fillCompanyName(user.companyName);
+    await userselection.filladdress(user.address)
+    await userselection.fillcity(user.city)
+    await userselection.fillState(user.state);
   }
 
+  else{
+    await userselection.fill_firstName(user.firstName);
+    await userselection.fill_lastName(user.lastname);
+    await userselection.fillCompanyName(user.companyName);
+    await userselection.filladdress(user.address)
+    await userselection.fillcity(user.city2)
+    await userselection.fillState(user.state);
+
+  }
+  
+
+
+
+
   })
 
+  test('multiple order', {tag:'@smoke'}, async ({ page }) => {
+    test.setTimeout(300000)
+    const userselection =  UserSelection(page)
+    const Usercountrymain = 'Nigeria'
+     const desiredItems = ['DNK Yellow Shoes', 'Dark Grey Jeans', 'Flamingo Tshirt', 'Blue Hoodie' ]
+     var message = 'Product successfully added to your cart. '
+    await userselection.multipleOrder(desiredItems,buttonType.add_To_Cart)
+    await userselection.viewcart(buttonType.view, message)
+    await userselection.assertTable(desiredItems)
+    await userselection.clickCheckout(buttonType.checkout)
+    await userselection.fillCountry(Usercountrymain)
+    await userselection.fill_firstName(user.firstName)
+    await userselection.fill_lastName(user.lastname)
+    await userselection.fillCompanyName(user.companyName)
+    await userselection.filladdress(user.address)
+    await userselection.fillcity(user.city)
+    await userselection.fillState(user.state)
+
+
+  })
 
 })
 
